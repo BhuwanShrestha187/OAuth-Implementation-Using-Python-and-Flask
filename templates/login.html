@@ -58,12 +58,25 @@
         .create-account:hover {
             background-color: #36a420;
         }
+        .alert {
+            padding: 10px;
+            margin-top: 10px;
+            text-align: center;
+        }
+         .error-message {
+                color: red;
+                font-size: 14px;
+                margin-top: 5px;
+                text-align: center;
+            }
+        
     </style>
     </head>
     <body>
 
         <div class="login-container">
             <h2>Login</h2>
+
             <form method="POST" action="{{ url_for('login') }}">
                 <input type="email" class="form-control" name="email"
                     placeholder="Email" required>
@@ -80,12 +93,19 @@
 
                 <button type="submit" class="btn btn-primary w-100">Log
                     In</button>
+
+                <!-- Flash Messages (Shows Error When Login Fails) -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <p class="error-message">{{message}}</p>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
             </form>
 
             <a href="#" class="forgot-password">Forgot password?</a>
-
             <hr>
-
             <button class="create-account">Create new account</button>
         </div>
 

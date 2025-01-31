@@ -78,30 +78,24 @@ def login():
         email = request.form['email']
         password = request.form['password']
 
-        print(f"Form Submitted! Email: {email}, Password: {password}")  # Debugging print
-
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM Users WHERE Email = ?", (email,))
         user_data = cursor.fetchone()
         cursor.close()
 
         if user_data:
-            print(f"User Found: {user_data}")  # Debugging print
-
-            if user_data[3] == password:  # Direct comparison without hashing (TEMPORARY FIX)
+            if user_data[3] == password:  # Using plain text comparison for now
                 user = User(id=user_data[0], name=user_data[1], email=user_data[2])
                 login_user(user)
-                print("Login successful! Redirecting to dashboard...")
                 return redirect(url_for('dashboard'))
-
             else:
-                print("Password does not match!")
-                flash("Invalid email or password", "danger")
+                flash("Invalid password! Please try again.", "danger")  # Inform user in UI
         else:
-            print("User not found!")
-            flash("Invalid email or password", "danger")
+            flash("No account found with that email!", "danger")
 
     return render_template("login.html")
+
+
 
 
 
