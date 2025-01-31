@@ -25,4 +25,5 @@ This project is made for learning basic Web Building with Flask and Python using
   <ul>
     <li>Under the second sprint, finished the Incorrect Password Functionality!!!</li>
   </ul>
+  <li><h3>Third Sprint: Forgot Password Functionality:</h3></li>
 </ul>
