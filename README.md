@@ -12,3 +12,8 @@ This project is made for learning basic Web Building with Flask and Python using
   <li>Forgot Password Functionality</li>
   </h3>
 </ul>
+
+<h2>Progress Made so far:</h2>
+<ul>
+  <li>First Sprint: Flask Integration with Python and Basic UI structure is completed as of Jan 31, 2025</li>
+</ul>
