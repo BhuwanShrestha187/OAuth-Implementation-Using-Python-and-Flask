@@ -22,4 +22,5 @@ This project is made for learning basic Web Building with Flask and Python using
   <p>In the second sprint, I utlized the integration of checking if the credentials entered by the user match the credentials stored in my local database in SQL Server. Right now, I did not implemented any password hashing. 
   I manually entered a test user in the database, and checked it in the web application. Flask try to compare the password using <b>check_password_hash()</b> function but I temporarily disabled it using <b>if user_data[3] == password:
   </b>.  </p>
+  <li> Work to do still is: Implement the Wrong Password Functionality</li>
 </ul>
