@@ -64,13 +64,13 @@
 
         <div class="login-container">
             <h2>Login</h2>
-            <form>
-                <input type="text" class="form-control"
-                    placeholder="Email or Phone Number">
+            <form method="POST" action="{{ url_for('login') }}">
+                <input type="email" class="form-control" name="email"
+                    placeholder="Email" required>
 
                 <div class="password-container">
                     <input type="password" id="password" class="form-control"
-                        placeholder="Password">
+                        name="password" placeholder="Password" required>
                     <span class="toggle-password" onclick="togglePassword()">
                         <img id="eye-icon"
                             src="https://img.icons8.com/ios-glyphs/30/000000/invisible.png"

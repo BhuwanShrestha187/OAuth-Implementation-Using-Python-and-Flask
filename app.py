@@ -1,7 +1,9 @@
 import os
-from flask import Flask, redirect, url_for, session, render_template
+from flask import Flask, redirect, url_for, session, render_template, request, flash
 from authlib.integrations.flask_client import OAuth
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from werkzeug.security import check_password_hash
+import pyodbc
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
@@ -21,6 +23,14 @@ google = oauth.register(
     client_kwargs={'scope': 'openid email profile'},
 )
 
+# SQL Server Connection
+conn = pyodbc.connect(
+    "DRIVER={SQL Server};"
+    "SERVER=BhuwanPC;" 
+    "DATABASE=FlaskAuthDB;"
+    "Trusted_Connection=yes;"  # Enables Windows Authentication
+)
+
 
 # Flask-Login Setup
 login_manager = LoginManager()
@@ -33,23 +43,67 @@ class User(UserMixin):
         self.name = name
         self.email = email
 
+    @staticmethod
+    def get_by_email(email):
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM Users WHERE Email = ?", (email,))
+        user_data = cursor.fetchone()
+        cursor.close()
+        if user_data:
+            return User(id=user_data[0], name=user_data[1], email=user_data[2])
+        return None
+
+
 users = {}
 
 @login_manager.user_loader
 def load_user(user_id):
-    return users.get(user_id)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM Users WHERE Id = ?", (user_id,))
+    user_data = cursor.fetchone()
+    cursor.close()
+    if user_data:
+        return User(id=user_data[0], name=user_data[1], email=user_data[2])
+    return None
+
 
 @app.route('/')
 def home():
     return render_template("login.html")  # Render the improved UI
 
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    return google.authorize_redirect(
-        url_for('authorize', _external=True),
-        prompt='select_account'  # Forces Google to show the account selection screen
-    )
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        print(f"Form Submitted! Email: {email}, Password: {password}")  # Debugging print
+
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM Users WHERE Email = ?", (email,))
+        user_data = cursor.fetchone()
+        cursor.close()
+
+        if user_data:
+            print(f"User Found: {user_data}")  # Debugging print
+
+            if user_data[3] == password:  # Direct comparison without hashing (TEMPORARY FIX)
+                user = User(id=user_data[0], name=user_data[1], email=user_data[2])
+                login_user(user)
+                print("Login successful! Redirecting to dashboard...")
+                return redirect(url_for('dashboard'))
+
+            else:
+                print("Password does not match!")
+                flash("Invalid email or password", "danger")
+        else:
+            print("User not found!")
+            flash("Invalid email or password", "danger")
+
+    return render_template("login.html")
+
+
 
 
 @app.route('/authorize')
