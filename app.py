@@ -1,6 +1,5 @@
 import os
 import random
-
 from flask import Flask, redirect, url_for, session, render_template, request, flash
 from authlib.integrations.flask_client import OAuth
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -209,10 +208,10 @@ def dashboard():
 
 
 @app.route('/logout')
-@login_required
 def logout():
-    logout_user()
-    return redirect(url_for('home'))
+    session.clear()  # ✅ Clears all session data
+    flash("You have been logged out.", "info")  # ✅ Optional message
+    return redirect(url_for("login"))
 
 if __name__ == '__main__':
     app.run(debug=True)
