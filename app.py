@@ -174,6 +174,33 @@ def verify_code():
     return render_template("verify_code.html", email=email)
 
 
+#When user preses the Resend Code button, it will help to send the code again
+@app.route('/resend_code', methods=['POST'])
+def resend_code():
+    email = request.json.get("email")  # Get user email from request
+
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM Users WHERE Email = ?", (email,))
+    user_data = cursor.fetchone()
+
+    if user_data:
+        new_code = str(random.randint(100000, 999999))  # Generate new 6-digit code
+
+        # Update verification code in the database
+        cursor.execute("UPDATE Users SET ResetCode = ? WHERE Email = ?", (new_code, email))
+        conn.commit()
+
+        # Send email with new verification code
+        msg = Message("Your New Verification Code", recipients=[email])
+        msg.body = f"Your new verification code is: {new_code}. Use this code to verify your account."
+        mail.send(msg)
+
+        return jsonify({"success": True, "message": "A new verification code has been sent to your email."})
+    else:
+        return jsonify({"success": False, "message": "Email not found."}), 400
+
+
+
 @app.route('/reset-password', methods=['GET', 'POST'])
 def reset_password():
     if 'reset_email' not in session:
