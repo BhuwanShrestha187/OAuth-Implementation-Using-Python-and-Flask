@@ -19,6 +19,9 @@ GO
 DROP TABLE Users; 
 SELECT * FROM Users; 
 
+ALTER TABLE Users ADD ResetCode VARCHAR(6) NULL;
+
+
 INSERT INTO Users (Username, Email, PasswordHash) 
 VALUES ('Bhuwan', 'bhuwanshrestha187@gmail.com', 'Leoaayan@24');
 

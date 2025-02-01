@@ -104,7 +104,8 @@
                 {% endwith %}
             </form>
 
-            <a href="#" class="forgot-password">Forgot password?</a>
+            <a href="{{ url_for('forgot_password') }}"
+                class="forgot-password">Forgot password?</a>
             <hr>
             <button class="create-account">Create new account</button>
         </div>

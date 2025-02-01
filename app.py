@@ -1,12 +1,28 @@
 import os
+import random
+
 from flask import Flask, redirect, url_for, session, render_template, request, flash
 from authlib.integrations.flask_client import OAuth
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import check_password_hash
 import pyodbc
+from flask_mail import Mail, Message
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask import session
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
+
+#Necessary Steps added for the Forgot Password Functionality: 
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'ayanshrestha187@gmail.com'  # Replace with your email
+app.config['MAIL_PASSWORD'] = 'szrx ltkh ksgx ynri'  # Replace with an app password
+app.config['MAIL_DEFAULT_SENDER'] = 'your_email@gmail.com'
+
+mail = Mail(app)
+
 
 # OAuth Setup
 oauth = OAuth(app)
@@ -76,24 +92,27 @@ def home():
 def login():
     if request.method == 'POST':
         email = request.form['email']
-        password = request.form['password']
+        password = request.form['password']  # User-entered password
 
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM Users WHERE Email = ?", (email,))
         user_data = cursor.fetchone()
-        cursor.close()
 
         if user_data:
-            if user_data[3] == password:  # Using plain text comparison for now
-                user = User(id=user_data[0], name=user_data[1], email=user_data[2])
-                login_user(user)
-                return redirect(url_for('dashboard'))
+            stored_hashed_password = user_data[3]  # Get hashed password (Check your column order)
+            
+            # Check if the entered password matches the hashed password
+            if check_password_hash(stored_hashed_password, password):
+                session['user_id'] = user_data[0]  # Store user ID in session
+                flash("Login successful!", "success")
+                return redirect(url_for("dashboard"))  # Redirect to dashboard
             else:
-                flash("Invalid password! Please try again.", "danger")  # Inform user in UI
+                flash("Incorrect password. Please try again.", "danger")
         else:
-            flash("No account found with that email!", "danger")
+            flash("Email not found. Please register.", "danger")
 
     return render_template("login.html")
+
 
 
 
@@ -109,10 +128,85 @@ def authorize():
     login_user(user)
     return redirect(url_for('dashboard'))
 
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM Users WHERE Email = ?", (email,))
+        user_data = cursor.fetchone()
+
+        if user_data:
+            reset_code = str(random.randint(100000, 999999))  # Generate 6-digit code
+
+            # Store reset code in the database
+            cursor.execute("UPDATE Users SET ResetCode = ? WHERE Email = ?", (reset_code, email))
+            conn.commit()
+
+            # Send email to user
+            msg = Message("Password Reset Code", recipients=[email])
+            msg.body = f"Your password reset code is: {reset_code}"
+            mail.send(msg)
+
+            flash("A reset code has been sent to your email.", "success")
+            return redirect(url_for("verify_code", email=email))
+        else:
+            flash("No account found with this email!", "danger")
+
+    return render_template("forgot_password.html")
+
+
+@app.route('/verify-code', methods=['GET', 'POST'])
+def verify_code():
+    email = request.args.get('email')
+
+    if request.method == 'POST':
+        entered_code = request.form['code']
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM Users WHERE Email = ? AND ResetCode = ?", (email, entered_code))
+        user_data = cursor.fetchone()
+
+        if user_data:
+            session['reset_email'] = email  # Store email in session
+            return redirect(url_for("reset_password"))
+        else:
+            flash("Invalid verification code!", "danger")
+
+    return render_template("verify_code.html", email=email)
+
+
+@app.route('/reset-password', methods=['GET', 'POST'])
+def reset_password():
+    if 'reset_email' not in session:
+        return redirect(url_for("forgot_password"))
+
+    if request.method == 'POST':
+        new_password = request.form['password']
+        email = session['reset_email']
+
+        hashed_password = generate_password_hash(new_password)  # Secure password hashing
+
+        cursor = conn.cursor()
+        cursor.execute("UPDATE Users SET PasswordHash = ?, ResetCode = NULL WHERE Email = ?", (hashed_password, email))
+        conn.commit()
+
+        flash("Your password has been updated! You can now log in.", "success")
+        session.pop('reset_email', None)
+        return redirect(url_for("login"))
+
+    return render_template("reset_password.html")
+
+
+
+
 @app.route('/dashboard')
-@login_required
 def dashboard():
-    return f"<h1>Welcome {current_user.name}</h1> <a href='/logout'>Logout</a>"
+    if 'user_id' not in session:
+        flash("Please log in to access this page.", "danger")
+        return redirect(url_for("login"))
+    
+    return render_template("dashboard.html")
+
 
 @app.route('/logout')
 @login_required
