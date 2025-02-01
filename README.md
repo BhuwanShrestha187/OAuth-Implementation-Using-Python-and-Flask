@@ -30,4 +30,6 @@ This project is made for learning basic Web Building with Flask and Python using
   with the new password, it successfully gets login. And when user press the Log out button from the dashboard page, then it came back to the homepage, but the problem happening is
   that, in  the login UI, it is displaying "Login Successful" which is previous result, right. So when user presses Log Out, he should be given new window of login page which 
   should be completely clean.</p>
+
+  <p>So, to solve that issue, I need to clear the session may be in the Logout route!!</p>
 </ul>
