@@ -38,4 +38,8 @@ This project is made for learning basic Web Building with Flask and Python using
   <ul>
     <li>Sub-Sprint of Fourth Sprint: Add a little bit like Code Matched kind of message for short time before redirecting to Change password page.</li>
   </ul>
+
+  <li><h3>Fifth Sprint: Add the Register Functionality.</h3>
+  <p>Creating a user functionality is successfully updated as well. </p>
+  </li>
 </ul>
