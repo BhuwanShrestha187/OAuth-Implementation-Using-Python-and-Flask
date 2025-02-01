@@ -32,4 +32,6 @@ This project is made for learning basic Web Building with Flask and Python using
   should be completely clean.</p>
 
   <p>So, to solve that issue, I need to clear the session may be in the Logout route!!</p>
+
+  <li><h3>Fourth Sprint: Add Resend Code functionality when user presses <b>Resend Code</b></h3> </li>
 </ul>
