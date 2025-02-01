@@ -1,5 +1,5 @@
 <h1> About the Project</h1>
-This project is made for learning basic Web Building with Flask and Python using OAuthentication for authentication purposes. 
+This project is made for learning basic Web Building with Flask and Python using OAuthentication for authentication purposes. Recently, I am working on a Capstone Project named "Handwritten Recognition System" which basically helps users to digitalize the handwritten images. So, I am in the middle of that project. And my project manager has given me the task to iontegrate <b>Login Functionality</b> in that project. So, taking the available scope and time into considerations, I don't want to jump directly over the project to implement these functionalities. So the core usage of this repo is to practice a simple prototype to implement Login Functionalities. It serves as a foundation for User Management in our project.
 
 <h2>This project is intended to meet these kind of requirements: </h2>
 <ul>
