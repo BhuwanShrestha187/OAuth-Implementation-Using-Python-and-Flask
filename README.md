@@ -34,4 +34,8 @@ This project is made for learning basic Web Building with Flask and Python using
   <p>So, to solve that issue, I need to clear the session may be in the Logout route!!</p>
 
   <li><h3>Fourth Sprint: Add Resend Code functionality when user presses <b>Resend Code</b></h3> </li>
+  <p>Resend COde functionality by adding route in app.py and further javascript in verify_code html. </p>
+  <ul>
+    <li>Sub-Sprint of Fourth Sprint: Add a little bit like Code Matched kind of message for short time before redirecting to Change password page.</li>
+  </ul>
 </ul>
