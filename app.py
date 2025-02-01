@@ -158,6 +158,7 @@ def forgot_password():
 @app.route('/verify-code', methods=['GET', 'POST'])
 def verify_code():
     email = request.args.get('email')
+    error_message = None  # Default is no error
 
     if request.method == 'POST':
         entered_code = request.form['code']
@@ -169,9 +170,11 @@ def verify_code():
             session['reset_email'] = email  # Store email in session
             return redirect(url_for("reset_password"))
         else:
-            flash("Invalid verification code!", "danger")
+            error_message = "Code does not match! Please try again."
 
-    return render_template("verify_code.html", email=email)
+    return render_template("verify_code.html", email=email, error_message=error_message)
+
+
 
 
 #When user preses the Resend Code button, it will help to send the code again
