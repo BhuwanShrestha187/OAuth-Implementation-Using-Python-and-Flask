@@ -219,7 +219,8 @@ def reset_password():
         cursor.execute("UPDATE Users SET PasswordHash = ?, ResetCode = NULL WHERE Email = ?", (hashed_password, email))
         conn.commit()
 
-        flash("Your password has been updated! You can now log in.", "success")
+        alert("Your password has been updated! You can now log in.", "success")
+        session.clear()  # ✅ Clears all session data
         session.pop('reset_email', None)
         return redirect(url_for("login"))
 
