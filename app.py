@@ -219,13 +219,38 @@ def reset_password():
         cursor.execute("UPDATE Users SET PasswordHash = ?, ResetCode = NULL WHERE Email = ?", (hashed_password, email))
         conn.commit()
 
-        alert("Your password has been updated! You can now log in.", "success")
+        flash("Your password has been updated! You can now log in.", "success")
         session.clear()  # ✅ Clears all session data
         session.pop('reset_email', None)
         return redirect(url_for("login"))
 
     return render_template("reset_password.html")
 
+#Now Register or Create an Account funtionality
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM Users WHERE Email = ?", (email,))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            flash("Email already registered. Please log in.", "danger")
+            return redirect(url_for('register'))
+
+        hashed_password = generate_password_hash(password)  # Secure password hashing
+        cursor.execute("INSERT INTO Users (Username, Email, PasswordHash) VALUES (?, ?, ?)",
+                       (username, email, hashed_password))
+        conn.commit()
+
+        flash("Account created successfully! Please log in.", "success")
+        return redirect(url_for('login'))
+
+    return render_template("register.html")
 
 
 
@@ -234,8 +259,19 @@ def dashboard():
     if 'user_id' not in session:
         flash("Please log in to access this page.", "danger")
         return redirect(url_for("login"))
-    
-    return render_template("dashboard.html")
+
+    # Fetch user details from the database
+    cursor = conn.cursor()
+    cursor.execute("SELECT Username FROM Users WHERE Id = ?", (session['user_id'],))
+    user_data = cursor.fetchone()
+
+    if user_data:
+        username = user_data[0]  # Get the username
+    else:
+        username = "User"  # Default if user not found
+
+    return render_template("dashboard.html", username=username)
+
 
 
 @app.route('/logout')
