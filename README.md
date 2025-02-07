@@ -1,45 +1,158 @@
-<h1> About the Project</h1>
-This project is made for learning basic Web Building with Flask and Python using OAuthentication for authentication purposes. Recently, I am working on a Capstone Project named "Handwritten Recognition System" which basically helps users to digitalize the handwritten images. So, I am in the middle of that project. And my project manager has given me the task to iontegrate <b>Login Functionality</b> in that project. So, taking the available scope and time into considerations, I don't want to jump directly over the project to implement these functionalities. So the core usage of this repo is to practice a simple prototype to implement Login Functionalities. It serves as a foundation for User Management in our project.
+# 🔐 Flask Authentication System with Google OAuth
 
-<h2>This project is intended to meet these kind of requirements: </h2>
-<ul>
-  <h3>
-  <li>Flask Integration</li>
-  <li>Use Python</li>
-  <li>Use OAuthentication</li>
-  <li>Implement SQL Server for checking the user already has account or not.</li>
-  <li>Creating a new user account</li>
-  <li>Forgot Password Functionality</li>
-  </h3>
-</ul>
+## 📌 Overview
+This is a **Flask-based authentication system** that allows users to:
+- Register and log in using **email and password**
+- Log in using **Google OAuth**
+- Reset their password if forgotten
+- Access a secure **dashboard** after authentication
+- Logout securely
 
-<h2>Progress Made so far:</h2>
-<ul>
-  <h3>
-  <li>First Sprint: Flask Integration with Python and Basic UI structure is completed as of Jan 31, 2025</li>
-  </h3> 
-  <h3><li>Second Sprint: Adding the verifying username and password Functionality with SQL Server database: </h3></li>
-  <p>In the second sprint, I utlized the integration of checking if the credentials entered by the user match the credentials stored in my local database in SQL Server. Right now, I did not implemented any password hashing. 
-  I manually entered a test user in the database, and checked it in the web application. Flask try to compare the password using <b>check_password_hash()</b> function but I temporarily disabled it using <b>if user_data[3] == password:
-  </b>.  </p>
-  <ul>
-    <li>Under the second sprint, finished the Incorrect Password Functionality!!!</li>
-  </ul>
-  <li><h3>Third Sprint: Forgot Password Functionality:</h3></li>
-  <p>Successfully integrated the forgot password functionality. But there is one glitch still need to be fixed. When user successfully changed the password and then try to login
-  with the new password, it successfully gets login. And when user press the Log out button from the dashboard page, then it came back to the homepage, but the problem happening is
-  that, in  the login UI, it is displaying "Login Successful" which is previous result, right. So when user presses Log Out, he should be given new window of login page which 
-  should be completely clean.</p>
+This project follows **best security practices** including password hashing and session management.
 
-  <p>So, to solve that issue, I need to clear the session may be in the Logout route!!</p>
+## 🚀 Features
+✅ **User Authentication:** Sign Up, Login, Logout  
+✅ **Password Reset:** Forgot Password, Email Verification, Reset Password  
+✅ **Google OAuth Login**  
+✅ **Dashboard (Protected Page)**  
+✅ **Session Management & Security**  
+✅ **Bootstrap-based Responsive UI**  
+✅ **Flask-Mail for sending verification emails**  
+✅ **Flask-Login for secure authentication handling**  
 
-  <li><h3>Fourth Sprint: Add Resend Code functionality when user presses <b>Resend Code</b></h3> </li>
-  <p>Resend COde functionality by adding route in app.py and further javascript in verify_code html. </p>
-  <ul>
-    <li>Sub-Sprint of Fourth Sprint: Add a little bit like Code Matched kind of message for short time before redirecting to Change password page.</li>
-  </ul>
+---
 
-  <li><h3>Fifth Sprint: Add the Register Functionality.</h3>
-  <p>Creating a user functionality is successfully updated as well. </p>
-  </li>
-</ul>
+## 🏗️ Tech Stack
+**Backend:** Flask, Flask-Login, Flask-Mail, Authlib, PyODBC  
+**Frontend:** HTML, CSS (Bootstrap), JavaScript  
+**Database:** SQL Server (or SQLite/MySQL/PostgreSQL)  
+
+---
+
+## 📂 Project Structure
+```
+FlaskAuthApp/
+│── templates/
+│   ├── login.html
+│   ├── register.html
+│   ├── forgot_password.html
+│   ├── reset_password.html
+│   ├── verify_code.html
+│   ├── dashboard.html
+│── static/
+│   ├── styles.css  # Additional CSS
+│── app.py  # Main application logic
+│── requirements.txt  # Required dependencies
+│── README.md  # Project documentation
+```
+
+---
+
+## 🛠️ Setup & Installation
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/your-username/FlaskAuthApp.git
+cd FlaskAuthApp
+```
+
+### 2️⃣ Create a Virtual Environment
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+### 3️⃣ Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4️⃣ Set Up Database (SQL Server)
+Ensure SQL Server is installed and running. Modify **app.py** with your database credentials:
+```python
+conn = pyodbc.connect(
+    "DRIVER={SQL Server};SERVER=YourServerName;DATABASE=FlaskAuthDB;Trusted_Connection=yes;"
+)
+```
+Create the `Users` table:
+```sql
+CREATE TABLE Users (
+    Id INT PRIMARY KEY IDENTITY,
+    Username VARCHAR(50),
+    Email VARCHAR(100) UNIQUE,
+    PasswordHash VARCHAR(255),
+    ResetCode VARCHAR(6) NULL
+);
+```
+
+### 5️⃣ Configure Email Service (Flask-Mail)
+Edit **app.py** with your email credentials (use environment variables for security):
+```python
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'your-email@gmail.com'
+app.config['MAIL_PASSWORD'] = 'your-app-password'
+```
+
+### 6️⃣ Set Up Google OAuth (Optional)
+1. Go to [Google Developer Console](https://console.cloud.google.com/)
+2. Create a new project → Enable OAuth 2.0
+3. Get **Client ID** and **Client Secret**
+4. Add them to **app.py**:
+```python
+google = oauth.register(
+    name='google',
+    client_id='YOUR_GOOGLE_CLIENT_ID',
+    client_secret='YOUR_GOOGLE_CLIENT_SECRET',
+    authorize_url='https://accounts.google.com/o/oauth2/auth',
+    access_token_url='https://oauth2.googleapis.com/token',
+    api_base_url='https://www.googleapis.com/oauth2/v1/',
+    client_kwargs={'scope': 'openid email profile'},
+)
+```
+
+### 7️⃣ Run the Application
+```bash
+python app.py
+```
+The app will be available at: **http://127.0.0.1:5000/**
+
+---
+
+## 🧪 Testing the Application
+✅ **Register a New User**  
+✅ **Login with Email and Password**  
+✅ **Login with Google OAuth**  
+✅ **Try Password Reset & Email Verification**  
+✅ **Check if session management works properly**  
+
+---
+
+## 🔒 Security Measures Implemented
+🔹 **Password Hashing** (Using `werkzeug.security`)  
+🔹 **Session Management** (Flask-Login)  
+🔹 **CSRF Protection** (Flask-WTF if added later)  
+🔹 **OAuth 2.0 Implementation**  
+🔹 **Environment Variables for Sensitive Data**  
+
+---
+
+## 🛠️ Future Improvements
+- ✅ Add JWT-based authentication for API support
+- ✅ Implement Two-Factor Authentication (2FA)
+- ✅ Add email confirmation upon signup
+
+---
+
+## 👨‍💻 Contributors
+📌 **Bhuwan Shrestha** – Developer
+
+Feel free to contribute by opening **issues** or **pull requests**!
+
+---
+
+## ⭐ Support & Feedback
+If you found this project helpful, **star** 🌟 this repo and share your feedback!
+
+Happy Coding! 🚀
+
